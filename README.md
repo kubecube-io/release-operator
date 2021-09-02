@@ -16,7 +16,9 @@ release-operator do customize operations for specified project
     "name": "kubecube-audit",
     "repo": "https://github.com/kubecube-io/kubecube-audit.git",
     "branch": "v1.0.2",
-    "exec": "make build"
+    "exec": "make build",
+    "skip_clone": true,
+    "skip_make": true
   },
   {
     "name": "kubecube-webconsole",
@@ -35,10 +37,16 @@ release-operator do customize operations for specified project
 
 ## Usage
 
-execute release operate
+serially execute project operation
 
 ```bash
-make run
+make run-serial
+```
+
+parallels execute project operation
+
+```bash
+make run-parallels
 ```
 
 clean local repos
