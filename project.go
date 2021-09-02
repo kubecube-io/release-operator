@@ -34,12 +34,18 @@ type project struct {
 
 // gitClone do "git clone" according to repo and tag
 func (p project) gitClone() error {
+	if p.SkipClone {
+		return nil
+	}
 	cmd := fmt.Sprintf("git clone -b %s %s %s", p.Branch, p.Repo, localRepos+p.Name)
 	return doExec(cmd, "")
 }
 
 // make do exec with project to build image
 func (p project) make() error {
+	if p.SkipMake {
+		return nil
+	}
 	dir := fmt.Sprintf("%s%s", localRepos, p.Name)
 	return doExec(p.Exec, dir)
 }

@@ -18,15 +18,20 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"sync"
 )
 
-const configName = "release-config.json"
+var parallels = flag.Bool("parallels", false, "parallels make projects")
 
 func main() {
-	config, err := os.Open(configName)
+	flag.Parse()
+
+	config, err := os.Open("release-config.json")
 	if err != nil {
 		panic(err)
 	}
@@ -51,10 +56,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = makeAll(projects)
-	if err != nil {
-		fmt.Fprintln(os.Stdout, err.Error())
-		os.Exit(1)
+	if *parallels {
+		parallelsMakeAll(projects)
+	} else {
+		serialMakeAll(projects)
 	}
 }
 
@@ -71,16 +76,27 @@ func gitCloneAll(project []project) error {
 	return nil
 }
 
-// todo(weilaaa): parallels exec suppport
-func makeAll(projects []project) error {
+func parallelsMakeAll(projects []project) {
+	w := &sync.WaitGroup{}
+	w.Add(len(projects))
+
 	for _, p := range projects {
-		if p.SkipMake {
-			continue
-		}
-		if err := p.make(); err != nil {
-			return fmt.Errorf("[%s] exec: %s failed; %v, ", p.Name, p.Exec, err)
-		}
+		go func(project project) {
+			if err := project.make(); err != nil {
+				log.Printf("[%s] exec: %s failed; %v \n", project.Name, project.Exec, err)
+			}
+			w.Done()
+		}(p)
 	}
 
-	return nil
+	w.Wait()
+}
+
+func serialMakeAll(projects []project) {
+	for _, p := range projects {
+		if err := p.make(); err != nil {
+			log.Printf("[%s] exec: %s failed; %v \n", p.Name, p.Exec, err)
+			continue
+		}
+	}
 }
