@@ -25,7 +25,8 @@ type project struct {
 	Repo   string `json:"repo"`
 	Branch string `json:"branch"`
 
-	Skip bool `json:"skip"`
+	SkipClone bool `json:"skip_clone"`
+	SkipMake  bool `json:"skip_make"`
 
 	// exec do cmd of image build
 	Exec string `json:"exec"`
