@@ -60,7 +60,7 @@ func main() {
 
 func gitCloneAll(project []project) error {
 	for _, p := range project {
-		if p.Skip {
+		if p.SkipClone {
 			continue
 		}
 		if err := p.gitClone(); err != nil {
@@ -74,7 +74,7 @@ func gitCloneAll(project []project) error {
 // todo(weilaaa): parallels exec suppport
 func makeAll(projects []project) error {
 	for _, p := range projects {
-		if p.Skip {
+		if p.SkipMake {
 			continue
 		}
 		if err := p.make(); err != nil {
